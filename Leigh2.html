@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Happy Birthday Leigh</title>
+
+<style>
+:root {
+  --royal-dark: #0a1e4a;
+  --royal-light: #123a7a;
+  --accent: #ffd27d;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: linear-gradient(160deg, var(--royal-dark), var(--royal-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ===== CANDLE GLOW ===== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, rgba(255,210,125,0.18), transparent 55%);
+  animation: glow 6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glow {
+  0%,100% { opacity: .6; }
+  50% { opacity: 1; }
+}
+
+/* ===== CONFETTI ===== */
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  top: -10px;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); }
+}
+
+/* ===== CARD ===== */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 22px;
+  padding: 26px 22px 30px;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  z-index: 1;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: .95rem;
+  font-weight: 400;
+  opacity: .9;
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 10px;
+}
+.box {
+  background: rgba(255,255,255,.1);
+  border-radius: 14px;
+  padding: 12px 6px;
+}
+.num {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.label {
+  font-size: .7rem;
+  opacity: .8;
+}
+
+/* ===== MESSAGE ===== */
+textarea {
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  resize: vertical;
+  font-size: .85rem;
+  font-family: inherit;
+}
+
+/* ===== GALLERY ===== */
+.gallery {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+}
+.gallery img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  margin-top: 10px;
+  font-size: .75rem;
+}
+
+footer {
+  margin-top: 14px;
+  font-size: .7rem;
+  opacity: .7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>🎉 Happy Birthday Leigh 🎉</h1>
+  <h2>A new chapter unfolds: my journey embraces wisdom and joy, Happy Birthday ~</h2>
+
+  <div class="countdown" id="countdown">
+    <div class="box"><div class="num" id="days">0</div><div class="label">DAYS</div></div>
+    <div class="box"><div class="num" id="hours">0</div><div class="label">HOURS</div></div>
+    <div class="box"><div class="num" id="minutes">0</div><div class="label">MINUTES</div></div>
+    <div class="box"><div class="num" id="seconds">0</div><div class="label">SECONDS</div></div>
+  </div>
+
+  <!-- ✏️ Editable Message -->
+  <textarea placeholder="Write your birthday message here..."></textarea>
+
+  <!-- 📸 Editable Gallery -->
+  <input type="file" multiple accept="image/*" id="photos">
+  <div class="gallery" id="gallery"></div>
+
+  <footer>Synced to Philippine Standard Time (UTC+8)</footer>
+</div>
+
+<script>
+// ===== CONFETTI =====
+function confettiPiece() {
+  const c = document.createElement("div");
+  c.className = "confetti";
+  c.style.left = Math.random() * 100 + "vw";
+  c.style.background = `hsl(${Math.random()*360},80%,60%)`;
+  c.style.animationDuration = 3 + Math.random()*3 + "s";
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 6000);
+}
+setInterval(confettiPiece, 300);
+
+// ===== GALLERY =====
+document.getElementById("photos").addEventListener("change", e => {
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+  [...e.target.files].forEach(file => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    gallery.appendChild(img);
+  });
+});
+
+// ===== COUNTDOWN (PST) =====
+function getTargetTimePST() {
+  const y = new Date().getUTCFullYear();
+  let t = Date.UTC(y,0,19,16,0,0);
+  if (Date.now() >= t) t = Date.UTC(y+1,0,19,16,0,0);
+  return t;
+}
+const target = getTargetTimePST();
+
+function update() {
+  const d = target - Date.now();
+  if (d <= 0) {
+    document.getElementById("countdown").innerHTML =
+      "<div class='num'>🎂 It’s Leigh’s Birthday! 🎂</div>";
+    return;
+  }
+  days.textContent = Math.floor(d/86400000);
+  hours.textContent = Math.floor(d/3600000)%24;
+  minutes.textContent = Math.floor(d/60000)%60;
+  seconds.textContent = Math.floor(d/1000)%60;
+}
+update();
+setInterval(update,1000);
+</script>
+
+</body>
+</html>
